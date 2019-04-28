@@ -4,9 +4,11 @@ This is an Ansible role to install the [Opera](https://www.opera.com/) browser.
 
 ## Important Notes
 
-* I will be installing via repository so that it will be kept up to date
-* I am configuring the repositories manually, which could be avoided if I could
-  figure out how to get the .rpm and .deb packages which also config repos
+* Initially I was configuring the repository for each OS and then installing the
+  package via repo.  But the package install *also* created a repo, so I have
+  opted to just install the latest version of the package, which installs a repo
+  to keep it up to date
+* I am using the `yum` and `apt` modules to allow for remote package install
 
 ## Requirements
 
