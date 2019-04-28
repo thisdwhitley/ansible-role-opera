@@ -1,0 +1,42 @@
+---
+# this will be installed via repository, so set those up and install
+
+- name: do these tasks for RedHat-y systems
+  block:
+    - name: install|rpm| add the repository
+      become: true
+      yum_repository:
+        name: opera-browser
+        description: Opera browser
+        baseurl: https://rpm.opera.com/rpm
+        enabled: true
+        gpgcheck: true
+        gpgkey: https://rpm.opera.com/rpmrepo.key
+        skip_if_unavailable: true
+  when: ansible_os_family == "RedHat"
+
+- name: do these tasks for Ubuntu systems
+  block:
+    - name: install|deb| install the https method driver for apt
+      become: true
+      apt:
+        name: apt-transport-https
+        state: present
+        update_cache: true
+    - name: install|deb| add the apt key
+      become: true
+      apt_key:
+        url: https://deb.opera.com/archive.key
+        state: present
+    - name: install|deb| add the apt repository
+      become: true
+      apt_repository:
+        repo: deb https://deb.opera.com/opera-stable/ stable non-free
+        state: present
+  when: ansible_os_family == "Debian"
+
+- name: install| install opera browser from repo
+  become: true
+  package:
+    name: opera-stable
+    state: present
