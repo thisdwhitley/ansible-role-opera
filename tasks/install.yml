@@ -6,9 +6,30 @@
     url: http://get.opera.com/ftp/pub/opera/desktop
     return_content: true
   register: versions
-- name: install| set version
+- name: install| set latest_version
   set_fact:
     version: "{{ versions.content.split('\n') | select('search', 'href') | list | last | regex_replace('.*>(.*)/</a>.*', '\\1') }}"
+    prior_index: "{{ (versions.content.split('\n') | select('search', 'href') | list | length) - 2 }}"
+
+- name: install| see if linux exists for {{ latest_version }}
+  uri:
+    url:  http://get.opera.com/ftp/pub/opera/desktop/{{ version }}/linux
+  register: http_response
+  failed_when: false
+
+- name: install|block| test version for linux
+  - name: install| grab prior_version just in case
+    set_fact:
+      prior_version: "{{ (versions.content.split('\n') | select('search', 'href') | list)[prior_index|int] | regex_replace('.*>(.*)/</a>.*', '\\1') }}"
+    register: set_prior_version
+  when: http_response.status != 200
+
+# because of an odd "expected" behavior, workaround:
+#  https://github.com/ansible/ansible/issues/17500#issuecomment-246370020
+- name: install|unavailable| set the version to the previous one only if latest is not available
+  set_fact:
+    version: "{{ prior_version }}"
+  when: set_prior_version is skipped
 
 # the rpm package is here: http://get.opera.com/ftp/pub/opera/desktop/{{ version }}/linux/opera-stable_{{ version }}_amd64.rpm
 - name: do these tasks for RedHat-y systems
