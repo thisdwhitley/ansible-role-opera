@@ -18,6 +18,7 @@
   failed_when: false
 
 - name: install|block| test version for linux
+  block:
   - name: install| grab prior_version just in case
     set_fact:
       prior_version: "{{ (versions.content.split('\n') | select('search', 'href') | list)[prior_index|int] | regex_replace('.*>(.*)/</a>.*', '\\1') }}"
@@ -29,7 +30,7 @@
 - name: install|unavailable| set the version to the previous one only if latest is not available
   set_fact:
     version: "{{ prior_version }}"
-  when: set_prior_version is skipped
+  when: set_prior_version is not skipped
 
 # the rpm package is here: http://get.opera.com/ftp/pub/opera/desktop/{{ version }}/linux/opera-stable_{{ version }}_amd64.rpm
 - name: do these tasks for RedHat-y systems
