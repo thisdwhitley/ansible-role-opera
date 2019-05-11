@@ -11,7 +11,7 @@
     version: "{{ versions.content.split('\n') | select('search', 'href') | list | last | regex_replace('.*>(.*)/</a>.*', '\\1') }}"
     prior_index: "{{ (versions.content.split('\n') | select('search', 'href') | list | length) - 2 }}"
 
-- name: install| see if linux exists for {{ latest_version }}
+- name: install| see if linux exists for {{ version }}
   uri:
     url:  http://get.opera.com/ftp/pub/opera/desktop/{{ version }}/linux
   register: http_response
